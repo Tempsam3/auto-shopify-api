@@ -1669,7 +1669,7 @@ if (
                 [
                     [
                         'text' => "Dev",
-                        'url' => 'https://t.me/amanpandey1212'
+                        'url' => 'https://t.me/gamer_addaZ'
                     ]
                 ]
             ]
