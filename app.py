@@ -43,9 +43,6 @@ def run_checkout():
         # 5. Try to parse the PHP script output as JSON
         try:
             json_output = json.loads(result.stdout)
-            # Include stderr debug info if debug=1 is passed
-            if request.args.get("debug") == "1" and result.stderr:
-                json_output["_debug_stderr"] = result.stderr[-2000:]  # last 2000 chars
             return jsonify(json_output)
         except json.JSONDecodeError:
             return Response(result.stdout, status=500, mimetype="text/plain")

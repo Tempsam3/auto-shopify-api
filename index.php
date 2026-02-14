@@ -420,36 +420,11 @@ if ($found) {
     exit;
 }
 
-// DEBUG: dump cart response info to stderr
-$debugResponseLen = strlen($response);
-$debugHasSerializedToken = (strpos($response, 'serialized-session-token') !== false) ? 'YES' : 'NO';
-$debugHasQuotEntity = (strpos($response, '&quot;') !== false) ? 'YES' : 'NO';
-$debugHasCheckpoint = (strpos($response, 'checkpoint') !== false) ? 'YES' : 'NO';
-$debugHasCaptcha = (strpos($response, 'captcha') !== false) ? 'YES' : 'NO';
-$debugHasThrottle = (strpos($response, 'throttle') !== false) ? 'YES' : 'NO';
-$debugHasQueue = (strpos($response, 'queue') !== false) ? 'YES' : 'NO';
-$debugFinalUrl = $finalUrl;
-$debugHttpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-// Get first 500 chars of body (skip headers)
-$debugHeaderSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
-$debugBodyStart = substr($response, $debugHeaderSize, 500);
-// Search for alternative token patterns
-$debugHasSessionToken2 = (strpos($response, 'sessionToken') !== false) ? 'YES' : 'NO';
-$debugHasAccessToken = (strpos($response, 'accessToken') !== false) ? 'YES' : 'NO';
-$debugHasShopifyPay = (strpos($response, 'shopifyPay') !== false) ? 'YES' : 'NO';
-$debugHasInitData = (strpos($response, 'initData') !== false) ? 'YES' : 'NO';
-$debugHasJsonData = (strpos($response, 'Shopify.Checkout') !== false) ? 'YES' : 'NO';
-$debugHasScript = (strpos($response, '<script') !== false) ? 'YES' : 'NO';
-$debugHasStableId = (strpos($response, 'stableId') !== false) ? 'YES' : 'NO';
-$debugHasQueueToken = (strpos($response, 'queueToken') !== false) ? 'YES' : 'NO';
-// Find where sessionToken appears
-$sessionTokenPos = strpos($response, 'sessionToken');
-$debugSessionTokenContext = ($sessionTokenPos !== false) ? substr($response, max(0, $sessionTokenPos - 50), 200) : 'NOT_FOUND';
-fwrite(STDERR, "DEBUG_CART: len=$debugResponseLen httpCode=$debugHttpCode finalUrl=$debugFinalUrl hasSerializedToken=$debugHasSerializedToken hasSessionToken2=$debugHasSessionToken2 hasAccessToken=$debugHasAccessToken hasInitData=$debugHasInitData hasStableId=$debugHasStableId hasQueueToken=$debugHasQueueToken hasCheckpoint=$debugHasCheckpoint hasCaptcha=$debugHasCaptcha\n");
-fwrite(STDERR, "DEBUG_CONTEXT: " . json_encode($debugSessionTokenContext) . "\n");
-fwrite(STDERR, "DEBUG_BODY_START: " . json_encode($debugBodyStart) . "\n");
-
-$x_checkout_one_session_token = find_between($response, '<meta name="serialized-session-token" content="&quot;', '&quot;"');
+$x_checkout_one_session_token = find_between($response, '<meta name="serialized-sessionToken" content="&quot;', '&quot;"');
+if (empty($x_checkout_one_session_token)) {
+    // Fallback to old format (pre-2025 Shopify)
+    $x_checkout_one_session_token = find_between($response, '<meta name="serialized-session-token" content="&quot;', '&quot;"');
+}
 if (empty($x_checkout_one_session_token)) {
     if ($retryCount < $maxRetries) {
         $retryCount++;
