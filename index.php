@@ -166,10 +166,14 @@ if ($endPos === false) {
 return substr($content, $startPos, $endPos - $startPos);
 }
 function output($method, $data) {
+    $bot_token = getenv('BOT_TOKEN');
+    if (empty($bot_token)) {
+        return ['ok' => false, 'description' => 'BOT_TOKEN not set'];
+    }
     $out = curl_init();
 
     curl_setopt_array($out, [
-        CURLOPT_URL => 'https://api.telegram.org/bot<bottoken>'.$method.'',
+        CURLOPT_URL => 'https://api.telegram.org/bot'.$bot_token.'/'.$method.'',
         CURLOPT_POST => 1,
         CURLOPT_POSTFIELDS => array_merge([
             'parse_mode' => 'HTML'
@@ -1661,9 +1665,9 @@ Price: $totalamt
             ]
         ])
     ];
-    $chat_id1 = '';
+    $chat_id1 = getenv('CHAT_ID') ?: '';
     output('sendVideo', array_merge([
-        'chat_id' => '-id',
+        'chat_id' => $chat_id1,
         'video' => 'https://t.me/amanpan/1'
     ], $kb_s));
     echo $result;
@@ -1696,7 +1700,7 @@ Price: $totalamt
         ])
     ];
     output('sendVideo', array_merge([
-        'chat_id' => '-id',
+        'chat_id' => getenv('CHAT_ID') ?: '',
         'video' => 'https://t.me/amanpan/1'
     ], $kb_s));
     echo $result;
@@ -1729,7 +1733,7 @@ Price: $totalamt
         ])
     ];
     output('sendVideo', array_merge([
-        'chat_id' => '-id',
+        'chat_id' => getenv('CHAT_ID') ?: '',
         'video' => 'https://t.me/amanpan/5'
     ], $kb_s));
     echo $result;
@@ -1778,7 +1782,7 @@ Price: $totalamt
         ])
     ];
     output('sendVideo', array_merge([
-        'chat_id' => '-id',
+        'chat_id' => getenv('CHAT_ID') ?: '',
         'video' => 'https://t.me/amanpan/1'
     ], $kb_s));
     echo $result;
