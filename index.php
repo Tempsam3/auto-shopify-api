@@ -19,36 +19,44 @@ $retryCount = 0;
 require_once 'ua.php';
 $agent = new userAgent();
 $ua = $agent->generate('windows');
+
+// Parse proxy from argv[3] - format: host:port:user:pass
+// Supports multiple proxies separated by | for rotation
+$proxyArg = isset($argv[3]) ? $argv[3] : '';
+$proxyList = array_filter(explode('|', $proxyArg));
+if (empty($proxyList)) {
+    die(json_encode(['Response' => 'Error: Proxy is required.']));
+}
+
+function getProxy() {
+    global $proxyList;
+    $chosen = $proxyList[array_rand($proxyList)];
+    $parts = explode(':', $chosen);
+    if (count($parts) === 4) {
+        // host:port:user:pass
+        return [
+            'url' => $parts[0] . ':' . $parts[1],
+            'auth' => $parts[2] . ':' . $parts[3]
+        ];
+    } elseif (count($parts) === 2) {
+        // host:port (no auth)
+        return [
+            'url' => $parts[0] . ':' . $parts[1],
+            'auth' => null
+        ];
+    }
+    return ['url' => $chosen, 'auth' => null];
+}
+
+function applyProxy($ch) {
+    $proxy = getProxy();
+    curl_setopt($ch, CURLOPT_PROXY, $proxy['url']);
+    if ($proxy['auth']) {
+        curl_setopt($ch, CURLOPT_PROXYUSERPWD, $proxy['auth']);
+    }
+}
+
 start:
-
-// $proxy = validateAndFormatProxy();
-// $ch = curl_init();
-// curl_setopt($ch, CURLOPT_URL, "http://api.ipify.org?format=json");
-// curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-// curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-// curl_setopt($ch, CURLOPT_PROXY, $proxy);
-// curl_setopt($ch, CURLOPT_PROXYUSERPWD, $proxy);
-
-// $proxyresponse = curl_exec($ch);
-// $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-// $curl_error = curl_error($ch);
-// curl_close($ch);
-
-// if ($http_code === 200 && !empty($proxyresponse)) {
-//     $result = [
-//         'Response' => 'Proxy Working',
-//         'ip' => json_decode($proxyresponse, true)['ip'],
-//     ];
-// } else {
-//     $err = "Proxy Dead";
-//     $result = json_encode([
-//         'Response' => $err,
-//         'ErrorDetails' => $curl_error,
-//         'VerboseLog' => $proxyresponse,
-//     ]);
-//     echo $result;
-//     exit;
-// }
 
 function generateUSAddress() {
     $statesWithZipRanges = [
@@ -285,6 +293,7 @@ if ($site1 === false) {
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    applyProxy($ch);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'User-Agent: Mozilla/5.0 (Linux; Android 6.0.1; Redmi 3S) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Mobile Safari/537.36',
         'Accept: application/json',
@@ -339,6 +348,7 @@ curl_setopt($ch, CURLOPT_COOKIEJAR, $cookie);
 curl_setopt($ch, CURLOPT_MAXREDIRS, 5);
 curl_setopt($ch, CURLOPT_HEADER, true);
 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+applyProxy($ch);
 curl_setopt($ch, CURLOPT_HTTPHEADER, [
     'accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
     'accept-language: en-US,en;q=0.9',
@@ -540,6 +550,7 @@ curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
 curl_setopt($ch, CURLOPT_COOKIEJAR, $cookie);
 curl_setopt($ch, CURLOPT_COOKIEFILE, $cookie);
+applyProxy($ch);
 curl_setopt($ch, CURLOPT_HTTPHEADER, [
     'accept: application/json',
     'accept-language: en-US,en;q=0.9',
@@ -908,7 +919,7 @@ $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, $urlbase.'/checkouts/unstable/graphql?operationName=Proposal');
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-// curl_setopt($ch, CURLOPT_PROXY, $proxy);
+applyProxy($ch);
 curl_setopt($ch, CURLOPT_COOKIEJAR, $cookie);
 curl_setopt($ch, CURLOPT_COOKIEFILE, $cookie);
 curl_setopt($ch, CURLOPT_HTTPHEADER, [
@@ -1480,7 +1491,7 @@ usleep(500000);
     $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, $urlbase.'/checkouts/unstable/graphql?operationName=SubmitForCompletion');
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-// curl_setopt($ch, CURLOPT_PROXY, $proxy);
+applyProxy($ch);
 curl_setopt($ch, CURLOPT_COOKIEJAR, $cookie);
 curl_setopt($ch, CURLOPT_COOKIEFILE, $cookie);
 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
@@ -1577,6 +1588,7 @@ usleep(500000);
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, $urlbase.'/checkouts/unstable/graphql?operationName=PollForReceipt');
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+applyProxy($ch);
 curl_setopt($ch, CURLOPT_COOKIEJAR, $cookie);
 curl_setopt($ch, CURLOPT_COOKIEFILE, $cookie);
 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
