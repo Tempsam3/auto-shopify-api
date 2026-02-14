@@ -420,6 +420,21 @@ if ($found) {
     exit;
 }
 
+// DEBUG: dump cart response info to stderr
+$debugResponseLen = strlen($response);
+$debugHasSerializedToken = (strpos($response, 'serialized-session-token') !== false) ? 'YES' : 'NO';
+$debugHasQuotEntity = (strpos($response, '&quot;') !== false) ? 'YES' : 'NO';
+$debugHasCheckpoint = (strpos($response, 'checkpoint') !== false) ? 'YES' : 'NO';
+$debugHasCaptcha = (strpos($response, 'captcha') !== false) ? 'YES' : 'NO';
+$debugHasThrottle = (strpos($response, 'throttle') !== false) ? 'YES' : 'NO';
+$debugHasQueue = (strpos($response, 'queue') !== false) ? 'YES' : 'NO';
+$debugFinalUrl = $finalUrl;
+$debugHttpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+// Get first 500 chars of body (skip headers)
+$debugHeaderSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+$debugBodyStart = substr($response, $debugHeaderSize, 500);
+fwrite(STDERR, "DEBUG_CART: len=$debugResponseLen httpCode=$debugHttpCode finalUrl=$debugFinalUrl hasSerializedToken=$debugHasSerializedToken hasQuotEntity=$debugHasQuotEntity hasCheckpoint=$debugHasCheckpoint hasCaptcha=$debugHasCaptcha hasThrottle=$debugHasThrottle hasQueue=$debugHasQueue bodyStart=" . json_encode($debugBodyStart) . "\n");
+
 $x_checkout_one_session_token = find_between($response, '<meta name="serialized-session-token" content="&quot;', '&quot;"');
 if (empty($x_checkout_one_session_token)) {
     if ($retryCount < $maxRetries) {
