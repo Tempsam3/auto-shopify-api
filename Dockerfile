@@ -22,9 +22,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 # 6. Copy all your application files into the container
 COPY . .
 
-# 7. Expose the port (Railway sets PORT dynamically via environment variable)
-EXPOSE ${PORT:-8080}
+# 7. Expose the port (Railway sets PORT dynamically, 8080 is default)
+EXPOSE 8080
 
 # 8. Define the command to run the application using Gunicorn (a production-ready server)
-# Railway injects PORT env var at runtime; default to 8080 if not set
-CMD gunicorn --bind 0.0.0.0:${PORT:-8080} --timeout 120 --workers 2 app:app
+# - gthread worker handles concurrent requests without blocking
+# - timeout 120 covers long PHP subprocess runs
+# - keep-alive 5 prevents idle socket timeouts that kill workers
+# - graceful-timeout lets workers finish current requests on restart
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT:-8080} --timeout 120 --graceful-timeout 30 --keep-alive 5 --workers 2 --threads 4 --worker-class gthread app:app"]

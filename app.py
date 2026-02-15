@@ -7,6 +7,12 @@ from flask import Flask, request, jsonify, Response
 app = Flask(__name__)
 
 
+@app.route("/", methods=["GET"])
+def health():
+    """Health check endpoint — lightweight, no PHP subprocess."""
+    return jsonify({"status": "ok", "service": "auto-shopify-api"})
+
+
 @app.route("/index.php", methods=["GET"])
 def run_checkout():
     """
